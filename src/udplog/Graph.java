@@ -29,9 +29,12 @@ public class Graph extends JPanel {
 
         // todo = new ArrayBlockingQueue<float[]>(1000);
         sets = new ArrayDeque<float[]>();
-
     }
 
+    /*
+     * Send a value to the Graph object to be graphed; This must be done on the
+     * Swing Thread.
+     */
     public void sendValue(String value) {
         String[] ns = value.split("[ ]*,[ ]*");
         float[] currentValues = new float[ns.length];
@@ -54,6 +57,7 @@ public class Graph extends JPanel {
         Graphics2D gg = (Graphics2D) g;
         int height = this.getHeight();
         int width = this.getWidth();
+        gg.setBackground(Color.WHITE);
         gg.clearRect(0, 0, width, height);
         gg.setStroke(new BasicStroke(1.5f));
 
@@ -73,14 +77,14 @@ public class Graph extends JPanel {
             ls = 0;
         }
 
-        // implict k < size <= width
+        // implicit k < size <= width
         gg.setColor(Color.BLACK);
         for (int k = ls; k < sets.size(); k += VERTICAL_LINE_SPACING_PX) {
             gg.drawLine(k, 0, k, height);
         }
 
         for (int c = 0;; c++) {
-            gg.setColor(Color.getHSBColor(c * 0.17f, 1.0f, 1.0f));
+            gg.setColor(Color.getHSBColor(c * 0.17f, 1.0f, 0.7f));
 
             float last;
             if (lvs.length <= c) {
@@ -106,40 +110,18 @@ public class Graph extends JPanel {
                 x++;
             }
 
-            // ie, last was never set
+            // i.e., last was never set
             if (Float.isNaN(last)) {
                 break;
             }
         }
-
-        /* @formatter:off
-        int i = 0;
-        for (float[] cvs : sets) {
-
-            int minlength = Math.min(lvs.length, cvs.length);
-
-            gg.setStroke(new BasicStroke(1.5f));
-            for (int ii = 0; ii < minlength; ii++) {
-                gg.setColor(Color.getHSBColor(ii * 0.17f, 1.0f, 1.0f));
-
-                gg.drawLine(i - 1, (int) Math.round(Util.linearRangeScale(
-                        lvs[ii], minValue, maxValue, height, 0.0)), i,
-                        (int) Math.round(Util.linearRangeScale(cvs[ii],
-                                minValue, maxValue, height, 0.0)));
-            }
-
-            lvs = cvs;
-
-            i++;
-        }*/
-//      @formatter:on
     }
 
-    public void setMaximum(double doubleValue) {
-        maxValue = (float) doubleValue;
+    public void setMaximum(float doubleValue) {
+        maxValue = doubleValue;
     }
 
-    public void setMinimum(double doubleValue) {
-        minValue = (float) doubleValue;
+    public void setMinimum(float doubleValue) {
+        minValue = doubleValue;
     }
 }

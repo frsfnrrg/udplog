@@ -65,8 +65,8 @@ public class GraphWindow extends JFrame {
         maxChanger.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                g.setMaximum(((SpinnerNumberModel) ((JSpinner) e.getSource())
-                        .getModel()).getNumber().doubleValue());
+                g.setMaximum((float) ((SpinnerNumberModel) ((JSpinner) e
+                        .getSource()).getModel()).getNumber().doubleValue());
             }
         });
         maxChanger.setPreferredSize(new Dimension(80, 20));
@@ -80,8 +80,8 @@ public class GraphWindow extends JFrame {
         minChanger.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                g.setMinimum(((SpinnerNumberModel) ((JSpinner) e.getSource())
-                        .getModel()).getNumber().doubleValue());
+                g.setMinimum((float) ((SpinnerNumberModel) ((JSpinner) e
+                        .getSource()).getModel()).getNumber().doubleValue());
             }
         });
         minChanger.setPreferredSize(new Dimension(80, 20));
@@ -109,7 +109,6 @@ public class GraphWindow extends JFrame {
         JPanel w = new JPanel();
         w.setLayout(new BorderLayout());
         w.add(g, BorderLayout.CENTER);
-        // w.add(Box.createVerticalStrut(2));
         w.add(optionsPain, BorderLayout.SOUTH);
 
         paused = false;

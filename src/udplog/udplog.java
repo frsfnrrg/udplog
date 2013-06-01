@@ -57,8 +57,7 @@ public class udplog {
         // setup
         PacketHandler p = new PacketHandler(targetDirectory.getAbsolutePath());
         final Receiver r = new Receiver(DEFAULT_PORT, p, faked, (fast ? 5 : 50));
-        PortStreamChanger psc = new PortStreamChanger(r);
-        GUI g = new GUI(r, psc);
+        GUI g = new GUI(r);
         p.setGUI(g);
 
         // starts receiving

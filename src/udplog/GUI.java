@@ -35,7 +35,9 @@ class GUI {
     /**
      * Makes a GUI for the UDP logger.
      */
-    public GUI(Receiver r, PortStreamChanger psc) {
+    public GUI(Receiver r) {
+        PortStreamChanger psc = new PortStreamChanger(r);
+
         // STOP - orange; START - green
         // CLEAR - blue
         graphingWindows = new ArrayList<GraphWindow>();

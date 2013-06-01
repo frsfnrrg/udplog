@@ -17,7 +17,7 @@ class Receiver extends Thread {
         } catch (SocketException e) {
             serverSocket = null;
             System.out.println("Socket @" + String.valueOf(inPort)
-                    + "failed to open: " + e.getMessage());
+                    + " failed to open: " + e.getMessage());
         }
         pHandle = p;
 

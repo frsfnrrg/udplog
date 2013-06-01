@@ -35,13 +35,17 @@ public class GraphWindow extends JFrame {
         killButton.setBackground(new Color(255, 255, 255));
         GraphExiter exit = new GraphExiter(this, us);
         killButton.addActionListener(exit);
+        killButton.setToolTipText("Slaughters this poor window");
 
         final JButton pauseButton = new JButton("PAUSE");
         pauseButton.setBackground(new Color(255, 195, 40));
+        pauseButton.setToolTipText("Ignore incoming data");
+
         Dimension pbsize = new Dimension(99, 25);
         pauseButton.setMinimumSize(pbsize);
         pauseButton.setPreferredSize(pbsize);
         pauseButton.setMaximumSize(pbsize);
+
         pauseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -50,9 +54,11 @@ public class GraphWindow extends JFrame {
                 if (b) {
                     pauseButton.setText("PAUSE");
                     pauseButton.setBackground(new Color(255, 195, 40));
+                    pauseButton.setToolTipText("Ignore incoming data");
                 } else {
                     pauseButton.setText("UNPAUSE");
                     pauseButton.setBackground(new Color(40, 255, 195));
+                    pauseButton.setToolTipText("Begin receiving data");
                 }
             }
         });
@@ -71,6 +77,8 @@ public class GraphWindow extends JFrame {
         });
         maxChanger.setPreferredSize(new Dimension(80, 20));
         maxChanger.setMaximumSize(new Dimension(150, 30));
+        maxChanger
+                .setToolTipText("Add or remove space near the top of the graph");
 
         JSpinner minChanger = new JSpinner();
         minChanger.setModel(new SpinnerNumberModel(Graph.DEFAULT_MIN_VALUE,
@@ -86,6 +94,8 @@ public class GraphWindow extends JFrame {
         });
         minChanger.setPreferredSize(new Dimension(80, 20));
         minChanger.setMaximumSize(new Dimension(150, 30));
+        maxChanger
+                .setToolTipText("Add or remove space near the bottom of the graph");
 
         JPanel optionsPain = new JPanel();
         optionsPain.setLayout(new BoxLayout(optionsPain, BoxLayout.X_AXIS));

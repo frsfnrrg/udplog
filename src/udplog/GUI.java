@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,8 +32,8 @@ class GUI {
     public static final int DEFAULT_MAX_LINES = 2000;
     public static final int MAX_MAX_LINES = 10000;
 
-    /*
-     * ++++++++++++ + STOP + +..........+ + + + + + + ++++++++++++
+    /**
+     * Makes a GUI for the UDP logger.
      */
     public GUI(Receiver r, PortStreamChanger psc) {
         // STOP - orange; START - green
@@ -43,6 +42,8 @@ class GUI {
 
         final JButton stopper = new JButton("STOP");
         stopper.setBackground(new Color(255, 125, 20));
+        stopper.setToolTipText("Ignore incoming packets");
+
         stopper.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,9 +52,12 @@ class GUI {
                 if (b) {
                     stopper.setText("STOP");
                     stopper.setBackground(new Color(255, 195, 40));
+                    stopper.setToolTipText("Ignore incoming packets");
                 } else {
                     stopper.setText("START");
                     stopper.setBackground(new Color(40, 255, 195));
+                    stopper.setToolTipText("Receive incoming packets"
+                            + " and log to a new file");
                 }
             }
         });
@@ -66,10 +70,12 @@ class GUI {
                 clearOutputFeed();
             }
         });
+        clear.setToolTipText("Clear the stream and the table of values.");
 
         JButton quit = new JButton("QUIT");
         quit.setBackground(new Color(255, 255, 255));
         quit.addActionListener(new Exiter());
+        quit.setToolTipText("Exit this program.");
 
         JPanel stopPanel = new JPanel();
         stopPanel.setLayout(new BoxLayout(stopPanel, BoxLayout.X_AXIS));
@@ -84,20 +90,46 @@ class GUI {
         stopPanel.add(Box.createHorizontalGlue());
         stopPanel.add(Box.createVerticalStrut(vs));
 
-        JPanel feedPanel = new JPanel();
-        feedPanel.setLayout(new BoxLayout(feedPanel, BoxLayout.Y_AXIS));
-
         // If we are ever really, really bored, fill out the sub-documents to be
         // simpler and more efficient.
         outputFeed = new JTextArea();
         outputFeed.setEditable(false);
-
         JScrollPane feedScroller = new JScrollPane(outputFeed);
 
-        j = new JLabel("Expects: \"KEY:data!\\n\"");
+        JLabel feedDesc = new JLabel("Expects: \"KEY:data!\\n\"");
+
+        JSpinner maxChanger = new JSpinner();
+        maxChanger.setModel(new SpinnerNumberModel(DEFAULT_MAX_LINES,
+                MIN_MAX_LINES, MAX_MAX_LINES, 1));
+        ((DefaultFormatter) ((JFormattedTextField) maxChanger.getEditor()
+                .getComponent(0)).getFormatter()).setCommitsOnValidEdit(true);
+        maxChanger.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                setMaxLines(((SpinnerNumberModel) ((JSpinner) e.getSource())
+                        .getModel()).getNumber().intValue());
+            }
+        });
+        maxChanger.setMaximumSize(new Dimension(100, 30));
+        maxChanger.setToolTipText("Change the cap on the maximum number"
+                + " of rows for the port stream");
+
+        JPanel subfpanel = new JPanel();
+        subfpanel.setLayout(new BoxLayout(subfpanel, BoxLayout.X_AXIS));
+        subfpanel.add(Box.createHorizontalStrut(5));
+        subfpanel.add(feedDesc);
+        subfpanel.add(Box.createHorizontalStrut(5));
+        subfpanel.add(Box.createHorizontalGlue());
+        subfpanel.add(new JLabel("Max Rows:"));
+        subfpanel.add(Box.createHorizontalStrut(5));
+        subfpanel.add(maxChanger);
+        subfpanel.add(Box.createHorizontalStrut(5));
+
+        JPanel feedPanel = new JPanel();
+        feedPanel.setLayout(new BoxLayout(feedPanel, BoxLayout.Y_AXIS));
         feedPanel.add(feedScroller);
         feedPanel.add(Box.createVerticalStrut(2));
-        feedPanel.add(j);
+        feedPanel.add(subfpanel);
 
         outputTable = new MModel();
         final JTable outputJTable = new JTable(outputTable);
@@ -123,32 +155,18 @@ class GUI {
                         .getValueAt(choice, 0), graphingWindows));
             }
         });
+        makeGraphButton.setToolTipText("Open a new window that"
+                + " graphs the values from this feed");
 
         JSpinner portChanger = new JSpinner();
         portChanger.setModel(new SpinnerNumberModel(udplog.DEFAULT_PORT, 1,
                 65536, 1));
-        JComponent comp = portChanger.getEditor();
-        JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
-        DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
-        formatter.setCommitsOnValidEdit(true);
+        ((DefaultFormatter) ((JFormattedTextField) portChanger.getEditor()
+                .getComponent(0)).getFormatter()).setCommitsOnValidEdit(true);
         portChanger.addChangeListener(psc);
         portChanger.setMaximumSize(new Dimension(100, 30));
-
-        JSpinner maxChanger = new JSpinner();
-        maxChanger.setModel(new SpinnerNumberModel(DEFAULT_MAX_LINES,
-                MIN_MAX_LINES, MAX_MAX_LINES, 1));
-        JComponent co = maxChanger.getEditor();
-        JFormattedTextField f = (JFormattedTextField) co.getComponent(0);
-        DefaultFormatter fo = (DefaultFormatter) f.getFormatter();
-        fo.setCommitsOnValidEdit(true);
-        maxChanger.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                setMaxLines(((SpinnerNumberModel) ((JSpinner) e.getSource())
-                        .getModel()).getNumber().intValue());
-            }
-        });
-        maxChanger.setMaximumSize(new Dimension(100, 30));
+        portChanger.setToolTipText("Change the UDP port to"
+                + " listen for packets from");
 
         JPanel settingsPanel = new JPanel();
         settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.X_AXIS));
@@ -160,10 +178,6 @@ class GUI {
         settingsPanel.add(psc.getStatusIndicator());
         settingsPanel.add(Box.createHorizontalStrut(5));
         settingsPanel.add(Box.createHorizontalGlue());
-        settingsPanel.add(Box.createHorizontalStrut(5));
-        settingsPanel.add(new JLabel("Max Rows:"));
-        settingsPanel.add(Box.createHorizontalStrut(5));
-        settingsPanel.add(maxChanger);
         settingsPanel.add(Box.createHorizontalStrut(5));
 
         JScrollPane tableScroller = new JScrollPane(outputJTable);
@@ -179,10 +193,11 @@ class GUI {
         blankPanel.add(note, BorderLayout.CENTER);
 
         JTabbedPane outputPain = new JTabbedPane();
-        outputPain.addTab("Blank", blankPanel);
-        outputPain.addTab("Port Stream", feedPanel);
-        outputPain.addTab("Tables", tablePanel);
-        // we need a graphing panel; to open one, right-click on the cell
+        outputPain.addTab("Blank", null, blankPanel, "Empty panel");
+        outputPain.addTab("Port Stream", null, feedPanel,
+                "Text stream from the incoming packets");
+        outputPain.addTab("Tables", null, tablePanel,
+                "A table displaying the last value for each substream");
 
         JPanel main = new JPanel();
         main.setLayout(new BorderLayout());
@@ -221,13 +236,12 @@ class GUI {
         maxLines = v;
     }
 
-    private final JLabel j;
     private final JTextArea outputFeed;
     private final Receiver rec;
     private final MModel outputTable;
     private final JFrame window;
     private int maxLines;
-    private volatile ArrayList<GraphWindow> graphingWindows;
+    private ArrayList<GraphWindow> graphingWindows;
 
     // @SuppressWarnings("unused")
     public void showNewPacket(final String val) {

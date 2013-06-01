@@ -25,8 +25,10 @@ public class Graph extends JPanel {
         maxValue = DEFAULT_MAX_VALUE;
         minValue = DEFAULT_MIN_VALUE;
         tick = 0;
+        // to optimize still further, change this into a circular buffer.
+        // this would allow faster access & easier removal of first k/iteration
+        // over last k
         sets = new ArrayDeque<float[]>();
-        this.setToolTipText("The graph window. Ain't it purty?");
     }
 
     /*
@@ -40,9 +42,10 @@ public class Graph extends JPanel {
             currentValues[ii] = Float.valueOf(ns[ii]);
         }
         sets.addLast(currentValues);
-        // tick++;
 
-        this.repaint();
+        this.repaint(500);
+        // repaint auto clips: therefore, to send a message of new fields, stuff
+        // must be done.
     }
 
     @Override
@@ -53,6 +56,14 @@ public class Graph extends JPanel {
         gg.setBackground(Color.WHITE);
         gg.clearRect(0, 0, width, height);
         gg.setStroke(new BasicStroke(1.5f));
+
+        // the sector to be redrawn is specified by gg.getClipBounds
+        //
+        // There are several cases:
+        // - redraw entire window or portion in response to hiding; redraw that
+        // X portion
+        // - redraw entire window in response to scaling; redraw all
+        // - redraw all in response to new data: eqv. shift left & add to tail
 
         if (width <= 1) {
             return;

@@ -112,9 +112,8 @@ public class Graph extends JPanel {
                 cutoff += 1;
 
                 xp[cutoff] = x;
-                yp[cutoff] = Util
-                        .fastround(Util.fastround(Util.linearRangeScale(curr,
-                                minValue, maxValue, height, 0.0)));
+                yp[cutoff] = Util.fastround(Util.linearRangeScale(curr,
+                        minValue, maxValue, height, 0.0));
 
                 last = curr;
 

@@ -16,7 +16,7 @@ class Receiver extends Thread {
             serverSocket = new DatagramSocket(inPort);
         } catch (SocketException e) {
             serverSocket = null;
-            System.out.println("Socket failed to open");
+            System.out.println("Socket failed to open: " + e.getMessage());
         }
         pHandle = p;
 
@@ -56,7 +56,7 @@ class Receiver extends Thread {
         // so far it burns on close ...
         if (serverSocket != null) {
             serverSocket.close();
-            System.out.println("closed socket");
+            System.out.println("Closed socket.");
         }
     }
 
@@ -79,7 +79,8 @@ class Receiver extends Thread {
             try {
                 serverSocket.receive(receivePacket);
             } catch (IOException e) {
-                System.out.println("Failed to receive a packet.");
+                System.out.println("Failed to receive a packet: "
+                        + e.getMessage());
                 return;
             }
 
@@ -119,7 +120,7 @@ class Receiver extends Thread {
         }
     }
 
-    public void setNewPort(int port) {
+    public boolean setNewPort(int port) {
         pause = true;
         System.out.format("Changing port to UDP %d.\n", port);
         if (serverSocket != null) {
@@ -128,11 +129,15 @@ class Receiver extends Thread {
         try {
             serverSocket = new DatagramSocket(port);
         } catch (SocketException e) {
-            e.printStackTrace();
             serverSocket = null;
-            System.out.println("Socket failed to open");
+            System.out.println("Socket failed to open: " + e.getMessage());
         }
         pause = false;
+        return true;
 
+    }
+
+    public boolean isConnected() {
+        return (serverSocket != null);
     }
 }

@@ -157,6 +157,8 @@ class GUI {
         settingsPanel.add(Box.createHorizontalStrut(5));
         settingsPanel.add(portChanger);
         settingsPanel.add(Box.createHorizontalStrut(5));
+        settingsPanel.add(psc.getStatusIndicator());
+        settingsPanel.add(Box.createHorizontalStrut(5));
         settingsPanel.add(Box.createHorizontalGlue());
         settingsPanel.add(Box.createHorizontalStrut(5));
         settingsPanel.add(new JLabel("Max Rows:"));

@@ -5,10 +5,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-/*
+/**
  * Great at exiting things!
- * 
- * 
  */
 class Exiter extends WindowAdapter implements ActionListener {
     @Override

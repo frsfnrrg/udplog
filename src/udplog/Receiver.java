@@ -115,9 +115,7 @@ class Receiver extends Thread {
             }
 
             try {
-                // 5 ms is an actual robot for tuning;
                 Thread.sleep(fakeModePause);
-                // we cut the thread (see close())
             } catch (InterruptedException e) {
             }
         }

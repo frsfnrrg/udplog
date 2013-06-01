@@ -94,6 +94,7 @@ class GUI {
         // simpler and more efficient.
         outputFeed = new JTextArea();
         outputFeed.setEditable(false);
+
         JScrollPane feedScroller = new JScrollPane(outputFeed);
 
         JLabel feedDesc = new JLabel("Expects: \"KEY:data!\\n\"");

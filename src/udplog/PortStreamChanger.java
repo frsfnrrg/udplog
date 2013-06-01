@@ -1,5 +1,7 @@
 package udplog;
 
+import java.awt.Dimension;
+
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -14,6 +16,7 @@ class PortStreamChanger implements ChangeListener {
         } else {
             status = new JLabel("Failed.");
         }
+        status.setMinimumSize(new Dimension(81, 15));
 
     }
 

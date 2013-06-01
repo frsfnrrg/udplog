@@ -16,7 +16,8 @@ class Receiver extends Thread {
             serverSocket = new DatagramSocket(inPort);
         } catch (SocketException e) {
             serverSocket = null;
-            System.out.println("Socket failed to open: " + e.getMessage());
+            System.out.println("Socket @" + String.valueOf(inPort)
+                    + "failed to open: " + e.getMessage());
         }
         pHandle = p;
 
@@ -123,16 +124,22 @@ class Receiver extends Thread {
     public boolean setNewPort(int port) {
         pause = true;
         System.out.format("Changing port to UDP %d.\n", port);
+
         if (serverSocket != null) {
             serverSocket.close();
         }
+
         try {
             serverSocket = new DatagramSocket(port);
         } catch (SocketException e) {
             serverSocket = null;
-            System.out.println("Socket failed to open: " + e.getMessage());
+            System.out.println("Socket @" + String.valueOf(port)
+                    + " failed to open: " + e.getMessage());
+            return false;
+        } finally {
+            pause = false;
         }
-        pause = false;
+
         return true;
 
     }

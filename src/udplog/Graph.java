@@ -1,13 +1,12 @@
 package udplog;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.util.ArrayDeque;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class Graph extends JPanel {
     public static float DEFAULT_MAX_VALUE = 1.25f;
@@ -45,6 +44,13 @@ public class Graph extends JPanel {
         for (int ii = 0; ii < size; ii++) {
             colors[ii] = Color.getHSBColor(ii * 0.17f, 1.0f, 0.7f);
         }
+        repainter = null;
+    }
+
+    private Thread repainter;
+
+    private void clearRepainter() {
+        repainter = null;
     }
 
     /*
@@ -59,12 +65,30 @@ public class Graph extends JPanel {
         }
         sets.addLast(currentValues);
 
-        this.repaint(500);
-        // repaint auto clips: therefore, to send a message of new fields, stuff
-        // must be done.
-    }
+        if (repainter == null) {
+            repainter = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            repaint(500);
+                            clearRepainter();
+                        }
+                    });
+                }
+            };
+            repainter.start();
+        }
 
-    public static final Stroke lineStroke = new BasicStroke(1.5f);
+        // TODO: limit the repaint frequency to 10 per second. In a non-hacky
+        // way.
+    }
 
     private int size;
     private int[][] xps;
@@ -72,49 +96,13 @@ public class Graph extends JPanel {
     private int[] cutoffs;
 
     @Override
-    public void paintComponent(Graphics g) {
-        Graphics2D gg = (Graphics2D) g;
-        gg.setBackground(Color.WHITE);
-        gg.setStroke(lineStroke);
-
+    public void paintComponent(Graphics gg) {
         int height = this.getHeight();
         int width = this.getWidth();
 
-        // width change
-
-        /* @formatter:off
-        boolean resized = false;
-        if (width != lastWidth) {
-            resized = true;
-            lastWidth = width;
-        }
-        if (height != lastHeight) {
-            resized = true;
-            lastHeight = height;
-        }
-        Rectangle clip = gg.getClipBounds();
-        if (clip.width != width || clip.height != height) {
-            resized = true;
-        }
-        */
-        // @formatter:on
-
-        // if resized is true, we redraw all
-
+        ((Graphics2D) gg).setBackground(Color.WHITE);
         gg.clearRect(0, 0, width, height);
 
-        // the sector to be redrawn is specified by gg.getClipBounds
-        //
-        // There are several cases:
-        // - redraw entire window or portion in response to hiding; redraw
-        // that
-        // X portion
-        // - redraw entire window in response to scaling; redraw all
-        // - redraw all in response to new data: eqv. shift left & add to
-        // tail
-
-        // or should I just use a circular buffer, with end cap? Rescale on
-        // rescale?
         while (sets.size() > width) {
             tick -= 1;
             sets.removeFirst();

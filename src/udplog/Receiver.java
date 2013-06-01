@@ -101,9 +101,15 @@ class Receiver extends Thread {
                         + "," + Double.toString(Util.nextSine(2.2)) + "\n");
                 pHandle.receive("E:0," + Double.toString(Util.nextSine(2.0))
                         + "\n");
-                pHandle.receive("1,"
-                        + Double.toString(Util.nextSine(5.0)
-                                * Util.nextSine(3.21)) + "\n");
+                if (Util.nextSine(.4) > 0) {
+                    pHandle.receive("1,"
+                            + Double.toString(Util.nextSine(5.0)
+                                    * Util.nextSine(3.21)) + "\n");
+                } else {
+                    pHandle.receive(Double.toString(Util.nextSine(4.0)
+                            * Util.nextSine(4.0))
+                            + "\n");
+                }
             }
 
             try {

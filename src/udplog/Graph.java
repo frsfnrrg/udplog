@@ -72,7 +72,16 @@ public class Graph extends JPanel {
             gg.drawLine(k, 0, k, height);
         }
 
-        // fundamental problem - it redraws material that it should not need to
+        // fundamental algo problem - it redraws material that it should not
+        // need to
+
+        // also, it could help to flatten the loop still further; precache the
+        // colors (maybe on recieving...). We could end up with overflow due to
+        // colors,
+        // but that assumes someone sends 2 GB single UDP packets :-O
+        // and make a new one on demand. Then iterate through each set, and for
+        // each color deal with the polyline adding/drawing.
+
         for (int c = 0;; c++) {
             gg.setColor(Color.getHSBColor(c * 0.17f, 1.0f, 0.7f));
 
@@ -83,17 +92,17 @@ public class Graph extends JPanel {
                 last = lvs[c];
             }
 
-            int x = 0;
+            int x = -1;
             int[] xp = new int[sets.size() + 2];
             int[] yp = new int[sets.size() + 2];
-            int cutoff = 0;
+            int cutoff = -1;
             for (float[] cvs : sets) {
+                x++;
 
                 if (cvs.length <= c) {
-                    // when we have 2 + points drawn. Need a test case
                     if (cutoff > 0) {
                         gg.drawPolyline(xp, yp, cutoff + 1);
-                    } // single point case? nah, it would have failed anyway.
+                    }
                     cutoff = -1;
                     continue;
                 }
@@ -108,7 +117,7 @@ public class Graph extends JPanel {
                                 minValue, maxValue, height, 0.0)));
 
                 last = curr;
-                x++;
+
             }
             if (cutoff > 0) {
                 gg.drawPolyline(xp, yp, cutoff + 1);

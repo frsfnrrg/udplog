@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 
 class Receiver extends Thread {
 
-    public Receiver(int port, PacketHandler p, boolean fakeItP) {
+    public Receiver(int port, PacketHandler p, boolean fakeItP, long sleeptime) {
         super();
         inPort = port;
         try {
@@ -25,6 +25,7 @@ class Receiver extends Thread {
         pause = false;
         receiveDatas = new byte[1024];
         nonDebug = !fakeItP;
+        fakeModePause = sleeptime;
     }
 
     private final boolean nonDebug;
@@ -34,6 +35,7 @@ class Receiver extends Thread {
     private Boolean ignorePackets = false;
     private boolean pause;
     private final byte[] receiveDatas;
+    private final long fakeModePause;
 
     @Override
     public void run() {
@@ -113,7 +115,8 @@ class Receiver extends Thread {
             }
 
             try {
-                Thread.sleep(50);
+                // 5 ms is an actual robot for tuning;
+                Thread.sleep(fakeModePause);
                 // we cut the thread (see close())
             } catch (InterruptedException e) {
             }

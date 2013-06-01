@@ -27,11 +27,19 @@ public class udplog {
 
     public static void main(String[] args) {
         boolean faked = false;
+        boolean fast = false;
         for (String s : args) {
             if ("--fakestream".equals(s)) {
                 faked = true;
-            }
-            if ("--help".equals(s)) {
+            } else if ("--fast".equals(s)) {
+                fast = true;
+            } else if ("--slow".equals(s)) {
+                fast = false;
+            } else if ("--help".equals(s)) {
+                System.out
+                        .println("Udplogger. args: There is one optional arg: --fakestream, which fakes incoming packets.");
+                return;
+            } else {
                 System.out
                         .println("Udplogger. There is one optional arg: --fakestream, which fakes incoming packets.");
                 return;
@@ -48,7 +56,7 @@ public class udplog {
 
         // setup
         PacketHandler p = new PacketHandler(targetDirectory.getAbsolutePath());
-        final Receiver r = new Receiver(DEFAULT_PORT, p, faked);
+        final Receiver r = new Receiver(DEFAULT_PORT, p, faked, (fast ? 5 : 50));
         PortStreamChanger psc = new PortStreamChanger(r);
         GUI g = new GUI(r, psc);
         p.setGUI(g);

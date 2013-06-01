@@ -82,4 +82,29 @@ final class Util {
                 + out_min;
     }
 
+    /*
+     * A very fast rounding function.
+     * 
+     * Warning: there is no guarantee of accuracy.
+     * 
+     * It is sometimes one off from IEEE rounding when the double is around 10^8
+     */
+    public static int fastround(double v) {
+        if (v > 0) {
+            int k = (int) v;
+            if ((v - k) > 0.5) {
+                return k + 1;
+            } else {
+                return k;
+            }
+        } else {
+            int k = (int) -v;
+            if ((-v - k) > 0.5) {
+                return -k - 1;
+            } else {
+                return -k;
+            }
+        }
+    }
+
 }

@@ -25,10 +25,8 @@ public class Graph extends JPanel {
         maxValue = DEFAULT_MAX_VALUE;
         minValue = DEFAULT_MIN_VALUE;
         tick = 0;
-        // I don't think we'll accumulate 1000 points before a repaint
-
-        // todo = new ArrayBlockingQueue<float[]>(1000);
         sets = new ArrayDeque<float[]>();
+        this.setToolTipText("The graph window. Ain't it purty?");
     }
 
     /*
@@ -36,18 +34,13 @@ public class Graph extends JPanel {
      * Swing Thread.
      */
     public void sendValue(String value) {
-        String[] ns = value.split("[ ]*,[ ]*");
+        String[] ns = value.split(" *, *");
         float[] currentValues = new float[ns.length];
         for (int ii = 0; ii < ns.length; ii++) {
             currentValues[ii] = Float.valueOf(ns[ii]);
         }
-        try {
-            // todo.add(currentValues);
-            sets.addLast(currentValues);
-            tick++;
-        } catch (IllegalStateException e) {
-            System.out.println("Queue too full..");
-        }
+        sets.addLast(currentValues);
+        // tick++;
 
         this.repaint();
     }
@@ -66,23 +59,20 @@ public class Graph extends JPanel {
         }
 
         float[] lvs = {};
+        // or should I just use a circular buffer, with end cap? Rescale on
+        // rescale?
         while (sets.size() > width) {
+            tick -= 1;
             lvs = sets.removeFirst();
-        }
-
-        int ls;
-        if (tick > width) {
-            ls = -(tick % VERTICAL_LINE_SPACING_PX);
-        } else {
-            ls = 0;
         }
 
         // implicit k < size <= width
         gg.setColor(Color.BLACK);
-        for (int k = ls; k < sets.size(); k += VERTICAL_LINE_SPACING_PX) {
+        for (int k = (tick % VERTICAL_LINE_SPACING_PX); k < sets.size(); k += VERTICAL_LINE_SPACING_PX) {
             gg.drawLine(k, 0, k, height);
         }
 
+        // fundamental problem - it redraws material that it should not need to
         for (int c = 0;; c++) {
             gg.setColor(Color.getHSBColor(c * 0.17f, 1.0f, 0.7f));
 
@@ -94,20 +84,34 @@ public class Graph extends JPanel {
             }
 
             int x = 0;
+            int[] xp = new int[sets.size() + 2];
+            int[] yp = new int[sets.size() + 2];
+            int cutoff = 0;
             for (float[] cvs : sets) {
+
                 if (cvs.length <= c) {
+                    // when we have 2 + points drawn. Need a test case
+                    if (cutoff > 0) {
+                        gg.drawPolyline(xp, yp, cutoff + 1);
+                    } // single point case? nah, it would have failed anyway.
+                    cutoff = -1;
                     continue;
                 }
 
                 float curr = cvs[c];
 
-                gg.drawLine(x - 1, (int) Math.round(Util.linearRangeScale(last,
-                        minValue, maxValue, height, 0.0)), x, (int) Math
-                        .round(Util.linearRangeScale(curr, minValue, maxValue,
-                                height, 0.0)));
+                cutoff += 1;
+
+                xp[cutoff] = x;
+                yp[cutoff] = Util
+                        .fastround(Util.fastround(Util.linearRangeScale(curr,
+                                minValue, maxValue, height, 0.0)));
 
                 last = curr;
                 x++;
+            }
+            if (cutoff > 0) {
+                gg.drawPolyline(xp, yp, cutoff + 1);
             }
 
             // i.e., last was never set
